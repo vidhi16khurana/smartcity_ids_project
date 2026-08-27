@@ -875,20 +875,14 @@ if __name__ == "__main__":
 
     print("\nStarting Chandigarh Smart City IDS Dashboard...")
 
-    print(
-        f"Project directory: {BASE_DIR}"
-    )
+    print(f"Project directory: {BASE_DIR}")
 
-    print(
-        f"Template directory: {TEMPLATE_DIR}"
-    )
+    print(f"Template directory: {TEMPLATE_DIR}")
 
-    print(
-        f"Static directory: {STATIC_DIR}"
-    )
+    print(f"Static directory: {STATIC_DIR}")
 
     app.run(
-        debug=True,
-        host="127.0.0.1",
+        debug=False,
+        host="0.0.0.0",
         port=5000
     )

@@ -9,9 +9,12 @@ async function runDetection() {
 
     const button = document.getElementById("runDetectionBtn");
     const resultsContainer = document.getElementById("resultsContainer");
+    const detectionStatus = document.getElementById("detectionStatus");
 
     button.disabled = true;
     button.innerHTML = "⏳ AI Detection Running...";
+
+    detectionStatus.textContent = "Analyzing Chandigarh Smart City...";
 
     resultsContainer.innerHTML = `
         <div class="empty-state">
@@ -22,6 +25,7 @@ async function runDetection() {
             <p>
                 Network, IoT and Application AI agents are analyzing
                 simulated Chandigarh Smart City infrastructure.
+                This may take a few seconds.
             </p>
         </div>
     `;
@@ -29,14 +33,41 @@ async function runDetection() {
     try {
 
         const response = await fetch("/run-detection", {
-            method: "POST"
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
         });
+
+
+        const contentType =
+            response.headers.get("content-type") || "";
+
+
+        if (!contentType.includes("application/json")) {
+
+            const responseText = await response.text();
+
+            console.error(
+                "Server returned non-JSON response:",
+                responseText
+            );
+
+            throw new Error(
+                `Server returned an invalid response (HTTP ${response.status}). ` +
+                `Please check the Render logs.`
+            );
+        }
+
 
         const data = await response.json();
 
-        if (!data.success) {
+
+        if (!response.ok || !data.success) {
+
             throw new Error(
-                data.error || "Detection failed"
+                data.error ||
+                `Detection failed with HTTP status ${response.status}`
             );
         }
 
@@ -44,19 +75,18 @@ async function runDetection() {
         // UPDATE STATISTICS
 
         document.getElementById("totalAlerts").textContent =
-            data.total_alerts;
+            data.total_alerts ?? 0;
 
         document.getElementById("criticalThreats").textContent =
-            data.critical_threats;
+            data.critical_threats ?? 0;
 
-        document.getElementById("totalCampaigns").textContent =
-            data.total_campaigns;
+        // IMPORTANT: HTML has id="campaigns"
+
+        document.getElementById("campaigns").textContent =
+            data.total_campaigns ?? 0;
 
 
         // UPDATE STATUS
-
-        const detectionStatus =
-            document.getElementById("detectionStatus");
 
         detectionStatus.textContent =
             `✓ Analysis completed for ${data.city}`;
@@ -65,13 +95,16 @@ async function runDetection() {
         // DISPLAY RESULTS
 
         displayCampaigns(
-            data.campaigns,
+            data.campaigns || [],
             resultsContainer
         );
 
     } catch (error) {
 
-        console.error(error);
+        console.error("Detection error:", error);
+
+        detectionStatus.textContent =
+            "Analysis failed";
 
         resultsContainer.innerHTML = `
             <div class="empty-state">
@@ -85,7 +118,7 @@ async function runDetection() {
                 </h3>
 
                 <p>
-                    ${error.message}
+                    ${escapeHtml(error.message)}
                 </p>
 
             </div>
@@ -135,7 +168,12 @@ function displayCampaigns(campaigns, container) {
         const layers =
             Array.isArray(campaign.layers_involved)
                 ? campaign.layers_involved.join(", ")
-                : campaign.layers_involved;
+                : (campaign.layers_involved || "Multiple agents");
+
+
+        const severity =
+            campaign.severity || "MEDIUM";
+
 
         return `
 
@@ -147,20 +185,20 @@ function displayCampaigns(campaigns, container) {
                     <div>
 
                         <h3>
-                            🚨 ${campaign.campaign_id}
+                            🚨 ${escapeHtml(campaign.campaign_id || "Campaign")}
                         </h3>
 
                         <p>
-                            📍 ${campaign.city} |
-                            ${campaign.location}
+                            📍 ${escapeHtml(campaign.city || "Chandigarh Smart City")} |
+                            ${escapeHtml(campaign.location || "Unknown Location")}
                         </p>
 
                     </div>
 
 
-                    <span class="severity-badge ${campaign.severity.toLowerCase()}">
+                    <span class="severity-badge ${severity.toLowerCase()}">
 
-                        ${campaign.severity}
+                        ${escapeHtml(severity)}
 
                     </span>
 
@@ -176,7 +214,7 @@ function displayCampaigns(campaigns, container) {
                     </span>
 
                     <h4>
-                        ${campaign.attack_type}
+                        ${escapeHtml(campaign.attack_type || "Suspicious Activity")}
                     </h4>
 
                 </div>
@@ -193,7 +231,8 @@ function displayCampaigns(campaigns, container) {
                         </span>
 
                         <strong>
-                            ${campaign.location}, Chandigarh
+                            ${escapeHtml(campaign.location || "Unknown Location")},
+                            Chandigarh
                         </strong>
 
                     </div>
@@ -206,7 +245,7 @@ function displayCampaigns(campaigns, container) {
                         </span>
 
                         <strong>
-                            ${campaign.target}
+                            ${escapeHtml(campaign.target || "Smart City Infrastructure")}
                         </strong>
 
                     </div>
@@ -219,7 +258,7 @@ function displayCampaigns(campaigns, container) {
                         </span>
 
                         <strong>
-                            ${campaign.confidence}
+                            ${escapeHtml(campaign.confidence || "N/A")}
                         </strong>
 
                     </div>
@@ -232,7 +271,7 @@ function displayCampaigns(campaigns, container) {
                         </span>
 
                         <strong>
-                            ${layers}
+                            ${escapeHtml(layers)}
                         </strong>
 
                     </div>
@@ -249,7 +288,10 @@ function displayCampaigns(campaigns, container) {
                     </h4>
 
                     <p>
-                        ${campaign.why_detected}
+                        ${escapeHtml(
+                            campaign.why_detected ||
+                            "The AI system correlated suspicious activity across the monitored infrastructure."
+                        )}
                     </p>
 
                 </div>
@@ -264,7 +306,10 @@ function displayCampaigns(campaigns, container) {
                     </h4>
 
                     <p>
-                        ${campaign.ai_assessment}
+                        ${escapeHtml(
+                            campaign.ai_assessment ||
+                            "AI analysis is unavailable."
+                        )}
                     </p>
 
                 </div>
@@ -278,8 +323,11 @@ function displayCampaigns(campaigns, container) {
                         🔬 Technical Evidence
                     </h4>
 
-                    <p>
-                        ${campaign.technical_explanation}
+                    <p style="white-space: pre-line;">
+                        ${escapeHtml(
+                            campaign.technical_explanation ||
+                            "No additional technical explanation is available."
+                        )}
                     </p>
 
                 </div>
@@ -290,4 +338,17 @@ function displayCampaigns(campaigns, container) {
         `;
 
     }).join("");
+}
+
+
+function escapeHtml(value) {
+
+    const div = document.createElement("div");
+
+    div.textContent =
+        value === null || value === undefined
+            ? ""
+            : String(value);
+
+    return div.innerHTML;
 }
