@@ -34,7 +34,7 @@ def _timestamps(n, start=0.0, rate=1.0, rng=None):
     return start + np.cumsum(gaps)
 
 
-def generate_dataset(n_normal=6000, n_campaigns=60, seed=RNG_SEED):
+def generate_dataset(n_normal=1500, n_campaigns=20, seed=RNG_SEED):
     rng = np.random.default_rng(seed)
 
     net_rows, iot_rows, app_rows = [], [], []

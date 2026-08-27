@@ -349,6 +349,45 @@ def generate_ai_assessment(
 
 
 # ==================================================
+# FIND ACTUAL FEATURE NAME
+# FIX FOR LIME FEATURE EXPRESSIONS
+# ==================================================
+
+def resolve_feature_name(
+    explanation_feature,
+    available_features
+):
+
+    explanation_feature = str(explanation_feature)
+
+    # Exact feature match
+    if explanation_feature in available_features:
+        return explanation_feature
+
+    # LIME can return:
+    # "unique_dst_ports <= 5.00"
+    # "payload_entropy > 4.20"
+    # So find the original feature inside it.
+    for feature in available_features:
+        if feature in explanation_feature:
+            return feature
+
+    return None
+
+
+# ==================================================
+# SAFE FEATURE VALUE FORMATTER
+# ==================================================
+
+def format_feature_value(value):
+
+    try:
+        return f"{float(value):.2f}"
+    except (ValueError, TypeError):
+        return str(value)
+
+
+# ==================================================
 # BUILD TECHNICAL EXPLANATION
 # ==================================================
 
@@ -356,7 +395,7 @@ def build_campaign_narrative(
     campaign,
     agents_by_name,
     top_k=3,
-    max_per_layer=2
+    max_per_layer=1
 ):
 
     lines = []
@@ -397,20 +436,53 @@ def build_campaign_narrative(
 
         for item in explanation:
 
-            feature_name = item["feature"]
+            explanation_feature = item.get(
+                "feature",
+                "Unknown Feature"
+            )
 
-            contribution = item["contribution"]
+            contribution = item.get(
+                "contribution",
+                0
+            )
 
-            feature_value = alert.row[feature_name]
+            # FIX:
+            # Convert LIME expression back to actual feature name
+            actual_feature = resolve_feature_name(
+                explanation_feature,
+                agent.features
+            )
+
+            if actual_feature is None:
+                important_features.append(
+                    f"{explanation_feature} "
+                    f"(impact {float(contribution):+.3f})"
+                )
+                continue
+
+            feature_value = alert.row.get(
+                actual_feature,
+                "N/A"
+            )
+
+            formatted_value = format_feature_value(
+                feature_value
+            )
 
             important_features.append(
-                f"{feature_name}={feature_value:.2f} "
-                f"(impact {contribution:+.3f})"
+                f"{actual_feature}={formatted_value} "
+                f"(impact {float(contribution):+.3f})"
             )
 
         features_text = ", ".join(
             important_features
         )
+
+        if not features_text:
+            features_text = (
+                "Multiple anomalous telemetry values "
+                "contributed to the detection."
+            )
 
         lines.append(
             f"{agent.name} detected suspicious behavior. "
@@ -569,7 +641,7 @@ def run_detection_pipeline():
                         timestamp=float(
                             row["timestamp"]
                         ),
-                        score=result.score,
+                        score=float(result.score),
                         row=result.row
                     )
                 )
@@ -616,11 +688,11 @@ def run_detection_pipeline():
     )
 
     for index, campaign in enumerate(
-        sorted_campaigns
+        sorted_campaigns[:10]
     ):
 
         fused_score = round(
-            campaign.campaign_score,
+            float(campaign.campaign_score),
             3
         )
 
@@ -652,7 +724,9 @@ def run_detection_pipeline():
 
         technical_narrative = build_campaign_narrative(
             campaign,
-            agents_by_name
+            agents_by_name,
+            top_k=3,
+            max_per_layer=1
         )
 
         report.append({
@@ -685,28 +759,28 @@ def run_detection_pipeline():
                 severity,
 
             "layers_involved":
-                campaign.layers_involved,
+                list(campaign.layers_involved),
 
             "n_alerts":
-                len(campaign.member_alerts),
+                int(len(campaign.member_alerts)),
 
             "start_ts":
                 round(
-                    min(
+                    float(min(
                         alert.timestamp
                         for alert
                         in campaign.member_alerts
-                    ),
+                    )),
                     2
                 ),
 
             "end_ts":
                 round(
-                    max(
+                    float(max(
                         alert.timestamp
                         for alert
                         in campaign.member_alerts
-                    ),
+                    )),
                     2
                 ),
 
@@ -736,7 +810,7 @@ def run_detection_pipeline():
     results = {
 
         "generated_at":
-            time.time(),
+            float(time.time()),
 
         "city":
             CITY_NAME,
@@ -754,10 +828,10 @@ def run_detection_pipeline():
             global_importance_results,
 
         "n_total_local_alerts":
-            len(all_alerts),
+            int(len(all_alerts)),
 
         "n_campaigns":
-            len(campaigns),
+            int(len(campaigns)),
 
         "top_campaigns":
             report[:5]
