@@ -106,6 +106,19 @@ CHANDIGARH_LOCATIONS = [
 
 
 # ==================================================
+# MEMORY HELPER
+# ==================================================
+
+def downcast_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Downcast float64 and int64 columns to float32 and int32 to save RAM."""
+    for col in df.select_dtypes(include=['float64']).columns:
+        df[col] = df[col].astype('float32')
+    for col in df.select_dtypes(include=['int64']).columns:
+        df[col] = df[col].astype('int32')
+    return df
+
+
+# ==================================================
 # EVALUATION FUNCTION
 # ==================================================
 
@@ -380,7 +393,7 @@ def build_campaign_narrative(
         x_row = np.array([
             alert.row[feature]
             for feature in agent.features
-        ])
+        ], dtype=np.float32)
 
         try:
 
@@ -413,7 +426,7 @@ def build_campaign_narrative(
                 important_features
             )
 
-        except Exception as error:
+        except Exception:
 
             features_text = (
                 "Automated feature-level explanation "
@@ -459,9 +472,7 @@ def run_detection_pipeline():
     # ---------------------------------------------
 
     if DETECTION_CACHE is not None:
-
         print("Using cached detection results.")
-
         return DETECTION_CACHE
 
     print("\n" + "=" * 70)
@@ -479,9 +490,14 @@ def run_detection_pipeline():
     print("Generating lightweight Smart City telemetry...")
 
     net_df, iot_df, app_df = generate_dataset(
-        n_normal=800,
-        n_campaigns=15
+        n_normal=500,
+        n_campaigns=10
     )
+
+    # Downcast DataFrames to cut memory usage in half
+    net_df = downcast_dataframe(net_df)
+    iot_df = downcast_dataframe(iot_df)
+    app_df = downcast_dataframe(app_df)
 
     # ---------------------------------------------
     # STEP 2: CREATE AGENTS
@@ -777,6 +793,17 @@ def run_detection_pipeline():
 
 
 # ==================================================
+# PRE-WARM CACHE ON STARTUP
+# ==================================================
+
+try:
+    print("Pre-loading models into RAM during server boot up...")
+    run_detection_pipeline()
+except Exception as boot_err:
+    print(f"Startup training failed, fallback on-demand: {boot_err}")
+
+
+# ==================================================
 # DASHBOARD ROUTES
 # ==================================================
 
@@ -809,7 +836,7 @@ def run_detection():
             if campaign.get("severity") == "CRITICAL"
         )
 
-        return jsonify({
+        response_data = {
 
             "success": True,
 
@@ -848,7 +875,12 @@ def run_detection():
                     "per_agent_metrics",
                     []
                 )
-        })
+        }
+
+        # Force GC after responding
+        gc.collect()
+
+        return jsonify(response_data)
 
     except Exception as error:
 
