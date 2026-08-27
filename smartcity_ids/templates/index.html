@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Chandigarh Smart City | Cyber Threat Detection</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="top-header">
+
+        <div class="logo-section">
+
+            <div class="shield">🛡️</div>
+
+            <div>
+                <h1>Chandigarh Smart City SOC</h1>
+
+                <p>
+                    Explainable Multi-Agent Cyber Threat Detection System
+                </p>
+            </div>
+
+        </div>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            SYSTEM ACTIVE
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+
+        <!-- ================= CITY BANNER ================= -->
+
+        <section class="city-banner">
+
+            <div class="city-info">
+
+                <div class="city-icon">
+                    🏙️
+                </div>
+
+                <div>
+
+                    <p class="city-label">
+                        CURRENT MONITORED SMART CITY
+                    </p>
+
+                    <h2>
+                        Chandigarh, India
+                    </h2>
+
+                    <p class="city-description">
+                        AI-based cybersecurity monitoring of simulated smart city
+                        network, IoT and digital service infrastructure.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="simulation-badge">
+
+                <span>🧪</span>
+
+                <div>
+                    <strong>SYNTHETIC SIMULATION</strong>
+
+                    <small>
+                        Research Project Prototype
+                    </small>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= DASHBOARD TITLE ================= -->
+
+        <section class="dashboard-title">
+
+            <div>
+
+                <h2>
+                    Cyber Security Operations Dashboard
+                </h2>
+
+                <p>
+                    Monitoring Chandigarh Smart City infrastructure
+                    using an Explainable Multi-Agent AI Framework
+                </p>
+
+            </div>
+
+
+            <button id="runDetectionBtn" class="run-btn">
+
+                <span>▶</span>
+
+                Run AI Detection
+
+            </button>
+
+        </section>
+
+
+        <!-- ================= STATS ================= -->
+
+        <section class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🚨
+                </div>
+
+                <div>
+
+                    <p>Total Alerts</p>
+
+                    <h3 id="totalAlerts">
+                        0
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🔴
+                </div>
+
+                <div>
+
+                    <p>Critical Threats</p>
+
+                    <h3 id="criticalThreats">
+                        0
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🧠
+                </div>
+
+                <div>
+
+                    <p>Attack Campaigns</p>
+
+                    <h3 id="totalCampaigns">
+                        0
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🤖
+                </div>
+
+                <div>
+
+                    <p>Active AI Agents</p>
+
+                    <h3>
+                        5
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= MONITORED CITY ZONES ================= -->
+
+        <section class="architecture-section">
+
+            <div class="section-title-row">
+
+                <div>
+
+                    <h2>
+                        Chandigarh Smart City Infrastructure
+                    </h2>
+
+                    <p>
+                        Simulated infrastructure monitored by specialized AI agents
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="architecture">
+
+
+                <div class="agent-card network">
+
+                    <span>
+                        🌐
+                    </span>
+
+                    <h3>
+                        IT Park
+                    </h3>
+
+                    <p>
+                        Network infrastructure and smart city communication traffic
+                    </p>
+
+                    <small>
+                        Monitored by Network Agent
+                    </small>
+
+                </div>
+
+
+                <div class="agent-card iot">
+
+                    <span>
+                        📡
+                    </span>
+
+                    <h3>
+                        Manimajra
+                    </h3>
+
+                    <p>
+                        Smart devices, sensors and IoT infrastructure
+                    </p>
+
+                    <small>
+                        Monitored by IoT / SCADA Agent
+                    </small>
+
+                </div>
+
+
+                <div class="agent-card application">
+
+                    <span>
+                        💻
+                    </span>
+
+                    <h3>
+                        Sector 43
+                    </h3>
+
+                    <p>
+                        Digital services, APIs and application infrastructure
+                    </p>
+
+                    <small>
+                        Monitored by Application Agent
+                    </small>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="agent-flow">
+
+                <div class="arrow">
+                    ↓
+                </div>
+
+
+                <div class="center-agent coordination">
+
+                    <h3>
+                        🔗 Coordination Agent
+                    </h3>
+
+                    <p>
+                        Correlates suspicious events across Chandigarh
+                        Smart City infrastructure layers
+                    </p>
+
+                </div>
+
+
+                <div class="arrow">
+                    ↓
+                </div>
+
+
+                <div class="center-agent explainability">
+
+                    <h3>
+                        🔍 Explainability Agent
+                    </h3>
+
+                    <p>
+                        Explains which attack was detected,
+                        where it occurred and why the AI system
+                        considered it suspicious
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= DETECTION RESULTS ================= -->
+
+        <section class="results-section">
+
+
+            <div class="section-header">
+
+
+                <div>
+
+                    <h2>
+                        🚨 Detected Cyber Threats
+                    </h2>
+
+                    <p>
+                        Attack campaigns detected in simulated
+                        Chandigarh Smart City infrastructure
+                    </p>
+
+                </div>
+
+
+                <span id="detectionStatus"
+                      class="detection-status">
+
+                    Waiting for AI analysis
+
+                </span>
+
+
+            </div>
+
+
+            <!-- ================= RESULTS ================= -->
+
+            <div id="resultsContainer">
+
+
+                <div class="empty-state">
+
+
+                    <div class="empty-icon">
+
+                        🛡️
+
+                    </div>
+
+
+                    <h3>
+                        Chandigarh Smart City is Ready for Analysis
+                    </h3>
+
+
+                    <p>
+
+                        Click <b>Run AI Detection</b> to simulate and analyze
+                        cyber threats across Chandigarh Smart City
+                        network, IoT and application infrastructure.
+
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= PROJECT NOTE ================= -->
+
+        <section class="project-note">
+
+            <span>
+                🧪
+            </span>
+
+            <p>
+
+                <strong>Research Prototype:</strong>
+
+                This dashboard uses synthetic, simulated telemetry
+                to demonstrate the Explainable Multi-Agent AI Framework
+                for early cyberattack detection in Chandigarh Smart City.
+
+            </p>
+
+        </section>
+
+
+    </main>
+
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>

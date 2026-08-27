@@ -1,0 +1,196 @@
+{
+  "generated_at": 1787808867.850581,
+  "city": "Chandigarh Smart City",
+  "simulation_type": "Synthetic Cyberattack Simulation",
+  "explainability_backends": {
+    "shap_available": false,
+    "lime_available": false
+  },
+  "per_agent_metrics": [
+    {
+      "agent": "network_traffic_agent",
+      "accuracy": 0.9954,
+      "precision": 0.9872,
+      "recall": 0.9897,
+      "f1": 0.9884,
+      "auc": 0.9999,
+      "false_positive_rate": 0.0032
+    },
+    {
+      "agent": "iot_scada_agent",
+      "accuracy": 0.9918,
+      "precision": 0.9778,
+      "recall": 0.9231,
+      "f1": 0.9496,
+      "auc": 0.9966,
+      "false_positive_rate": 0.0019
+    },
+    {
+      "agent": "application_layer_agent",
+      "accuracy": 0.9958,
+      "precision": 0.9667,
+      "recall": 0.9748,
+      "f1": 0.9707,
+      "auc": 0.9997,
+      "false_positive_rate": 0.0026
+    }
+  ],
+  "global_feature_importance": {
+    "network_traffic_agent": [
+      {
+        "feature": "syn_flag_ratio",
+        "contribution": 0.9319124816066963
+      },
+      {
+        "feature": "unique_dst_ports",
+        "contribution": 0.0381459557846712
+      },
+      {
+        "feature": "byte_count",
+        "contribution": 0.017783482271332394
+      }
+    ],
+    "iot_scada_agent": [
+      {
+        "feature": "sensor_delta",
+        "contribution": 0.4015931470694263
+      },
+      {
+        "feature": "command_rate",
+        "contribution": 0.3679918844225059
+      },
+      {
+        "feature": "auth_failures",
+        "contribution": 0.15131586438433675
+      }
+    ],
+    "application_layer_agent": [
+      {
+        "feature": "error_rate",
+        "contribution": 0.8749539119570747
+      },
+      {
+        "feature": "distinct_endpoints",
+        "contribution": 0.07687270949265865
+      },
+      {
+        "feature": "payload_entropy",
+        "contribution": 0.0216523642453157
+      }
+    ]
+  },
+  "n_total_local_alerts": 2562,
+  "n_campaigns": 44,
+  "top_campaigns": [
+    {
+      "campaign_id": "CAM-001",
+      "city": "Chandigarh Smart City",
+      "location": "IT Park",
+      "zone_type": "Technology Zone",
+      "attack_type": "Coordinated Multi-Layer Cyberattack",
+      "target": "Multiple Chandigarh Smart City Services",
+      "fused_score": 0.999,
+      "confidence": "99%",
+      "severity": "CRITICAL",
+      "layers_involved": [
+        "application",
+        "iot",
+        "network"
+      ],
+      "n_alerts": 40,
+      "start_ts": 3289.64,
+      "end_ts": 3300.7,
+      "why_detected": "The system detected a suspected 'Coordinated Multi-Layer Cyberattack' affecting IT Park in Chandigarh. 40 suspicious events were correlated by the Application Agent, IoT/SCADA Agent, Network Agent. The alerts occurred within approximately 11.07 seconds, which increased the likelihood that they belong to the same coordinated attack campaign. Suspicious activity was detected simultaneously across network, IoT and application infrastructure.",
+      "ai_assessment": "AI Assessment: The system has 99% confidence that the correlated anomalies represent a Coordinated Multi-Layer Cyberattack. The affected simulated location is IT Park, and the primary target is Multiple Chandigarh Smart City Services. Detection was based on correlated evidence from: application, iot, network.",
+      "technical_explanation": "network_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=78.00 (impact +0.462), syn_flag_ratio=0.86 (impact +0.014), byte_count=161.52 (impact +0.011)\nnetwork_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=165.00 (impact +0.680), syn_flag_ratio=0.92 (impact +0.029), byte_count=125.99 (impact +0.011)\niot_scada_agent detected suspicious behavior. Key contributing factors: command_rate=25.00 (impact +0.217), sensor_delta=7.66 (impact +0.150), replay_gap=0.05 (impact +0.033)\niot_scada_agent detected suspicious behavior. Key contributing factors: command_rate=22.00 (impact +0.348), sensor_delta=4.37 (impact +0.322), replay_gap=0.90 (impact +0.070)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=39.00 (impact +0.073), distinct_endpoints=8.00 (impact +0.039), payload_entropy=5.34 (impact +0.004)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=32.00 (impact +0.073), distinct_endpoints=16.00 (impact +0.039), payload_entropy=6.14 (impact +0.003)"
+    },
+    {
+      "campaign_id": "CAM-002",
+      "city": "Chandigarh Smart City",
+      "location": "IT Park",
+      "zone_type": "Technology Zone",
+      "attack_type": "Coordinated Multi-Layer Cyberattack",
+      "target": "Multiple Chandigarh Smart City Services",
+      "fused_score": 0.999,
+      "confidence": "99%",
+      "severity": "CRITICAL",
+      "layers_involved": [
+        "application",
+        "iot",
+        "network"
+      ],
+      "n_alerts": 37,
+      "start_ts": 2420.06,
+      "end_ts": 2430.34,
+      "why_detected": "The system detected a suspected 'Coordinated Multi-Layer Cyberattack' affecting IT Park in Chandigarh. 37 suspicious events were correlated by the Application Agent, IoT/SCADA Agent, Network Agent. The alerts occurred within approximately 10.29 seconds, which increased the likelihood that they belong to the same coordinated attack campaign. Suspicious activity was detected simultaneously across network, IoT and application infrastructure.",
+      "ai_assessment": "AI Assessment: The system has 99% confidence that the correlated anomalies represent a Coordinated Multi-Layer Cyberattack. The affected simulated location is IT Park, and the primary target is Multiple Chandigarh Smart City Services. Detection was based on correlated evidence from: application, iot, network.",
+      "technical_explanation": "network_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=138.00 (impact +0.535), syn_flag_ratio=0.85 (impact +0.028), byte_count=231.35 (impact +0.010)\nnetwork_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=128.00 (impact +0.535), syn_flag_ratio=0.97 (impact +0.021), byte_count=216.74 (impact +0.008)\niot_scada_agent detected suspicious behavior. Key contributing factors: command_rate=13.00 (impact +0.167), sensor_delta=7.92 (impact +0.150), replay_gap=0.60 (impact +0.033)\niot_scada_agent detected suspicious behavior. Key contributing factors: sensor_delta=6.98 (impact +0.316), command_rate=20.00 (impact +0.315), replay_gap=0.22 (impact +0.070)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=36.00 (impact +0.073), distinct_endpoints=15.00 (impact +0.039), payload_entropy=5.50 (impact +0.003)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=34.00 (impact +0.073), distinct_endpoints=13.00 (impact +0.039), payload_entropy=6.42 (impact +0.003)"
+    },
+    {
+      "campaign_id": "CAM-003",
+      "city": "Chandigarh Smart City",
+      "location": "IT Park",
+      "zone_type": "Technology Zone",
+      "attack_type": "Coordinated Multi-Layer Cyberattack",
+      "target": "Multiple Chandigarh Smart City Services",
+      "fused_score": 0.999,
+      "confidence": "99%",
+      "severity": "CRITICAL",
+      "layers_involved": [
+        "application",
+        "iot",
+        "network"
+      ],
+      "n_alerts": 27,
+      "start_ts": 665.64,
+      "end_ts": 674.71,
+      "why_detected": "The system detected a suspected 'Coordinated Multi-Layer Cyberattack' affecting IT Park in Chandigarh. 27 suspicious events were correlated by the Application Agent, IoT/SCADA Agent, Network Agent. The alerts occurred within approximately 9.08 seconds, which increased the likelihood that they belong to the same coordinated attack campaign. Suspicious activity was detected simultaneously across network, IoT and application infrastructure.",
+      "ai_assessment": "AI Assessment: The system has 99% confidence that the correlated anomalies represent a Coordinated Multi-Layer Cyberattack. The affected simulated location is IT Park, and the primary target is Multiple Chandigarh Smart City Services. Detection was based on correlated evidence from: application, iot, network.",
+      "technical_explanation": "network_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=143.00 (impact +0.555), syn_flag_ratio=0.87 (impact +0.022), byte_count=207.81 (impact +0.008)\nnetwork_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=50.00 (impact +0.462), syn_flag_ratio=0.92 (impact +0.016), byte_count=195.08 (impact +0.014)\niot_scada_agent detected suspicious behavior. Key contributing factors: command_rate=29.00 (impact +0.334), sensor_delta=7.43 (impact +0.217), replay_gap=0.55 (impact +0.070)\niot_scada_agent detected suspicious behavior. Key contributing factors: sensor_delta=6.61 (impact +0.398), command_rate=18.00 (impact +0.315), replay_gap=0.24 (impact +0.070)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=38.00 (impact +0.073), distinct_endpoints=14.00 (impact +0.039), payload_entropy=5.83 (impact +0.003)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=39.00 (impact +0.073), distinct_endpoints=13.00 (impact +0.039), payload_entropy=6.29 (impact +0.003)"
+    },
+    {
+      "campaign_id": "CAM-004",
+      "city": "Chandigarh Smart City",
+      "location": "IT Park",
+      "zone_type": "Technology Zone",
+      "attack_type": "Coordinated Multi-Layer Cyberattack",
+      "target": "Multiple Chandigarh Smart City Services",
+      "fused_score": 0.999,
+      "confidence": "99%",
+      "severity": "CRITICAL",
+      "layers_involved": [
+        "application",
+        "iot",
+        "network"
+      ],
+      "n_alerts": 44,
+      "start_ts": 2391.75,
+      "end_ts": 2404.88,
+      "why_detected": "The system detected a suspected 'Coordinated Multi-Layer Cyberattack' affecting IT Park in Chandigarh. 44 suspicious events were correlated by the Application Agent, IoT/SCADA Agent, Network Agent. The alerts occurred within approximately 13.13 seconds, which increased the likelihood that they belong to the same coordinated attack campaign. Suspicious activity was detected simultaneously across network, IoT and application infrastructure.",
+      "ai_assessment": "AI Assessment: The system has 99% confidence that the correlated anomalies represent a Coordinated Multi-Layer Cyberattack. The affected simulated location is IT Park, and the primary target is Multiple Chandigarh Smart City Services. Detection was based on correlated evidence from: application, iot, network.",
+      "technical_explanation": "network_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=46.00 (impact +0.481), byte_count=183.22 (impact +0.012), syn_flag_ratio=0.98 (impact +0.011)\nnetwork_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=56.00 (impact +0.628), syn_flag_ratio=0.89 (impact +0.022), byte_count=206.96 (impact +0.011)\niot_scada_agent detected suspicious behavior. Key contributing factors: command_rate=13.00 (impact +0.315), sensor_delta=6.46 (impact +0.233), replay_gap=0.13 (impact +0.070)\niot_scada_agent detected suspicious behavior. Key contributing factors: sensor_delta=4.28 (impact +0.349), command_rate=12.00 (impact +0.315), replay_gap=0.28 (impact +0.070)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=34.00 (impact +0.073), distinct_endpoints=11.00 (impact +0.039), payload_entropy=5.87 (impact +0.003)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=35.00 (impact +0.073), distinct_endpoints=9.00 (impact +0.039), payload_entropy=6.40 (impact +0.003)"
+    },
+    {
+      "campaign_id": "CAM-005",
+      "city": "Chandigarh Smart City",
+      "location": "IT Park",
+      "zone_type": "Technology Zone",
+      "attack_type": "Coordinated Multi-Layer Cyberattack",
+      "target": "Multiple Chandigarh Smart City Services",
+      "fused_score": 0.999,
+      "confidence": "99%",
+      "severity": "CRITICAL",
+      "layers_involved": [
+        "application",
+        "iot",
+        "network"
+      ],
+      "n_alerts": 71,
+      "start_ts": 1814.1,
+      "end_ts": 1829.52,
+      "why_detected": "The system detected a suspected 'Coordinated Multi-Layer Cyberattack' affecting IT Park in Chandigarh. 71 suspicious events were correlated by the Application Agent, IoT/SCADA Agent, Network Agent. The alerts occurred within approximately 15.42 seconds, which increased the likelihood that they belong to the same coordinated attack campaign. Suspicious activity was detected simultaneously across network, IoT and application infrastructure.",
+      "ai_assessment": "AI Assessment: The system has 99% confidence that the correlated anomalies represent a Coordinated Multi-Layer Cyberattack. The affected simulated location is IT Park, and the primary target is Multiple Chandigarh Smart City Services. Detection was based on correlated evidence from: application, iot, network.",
+      "technical_explanation": "network_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=93.00 (impact +0.462), syn_flag_ratio=0.95 (impact +0.016), byte_count=71.10 (impact +0.014)\nnetwork_traffic_agent detected suspicious behavior. Key contributing factors: unique_dst_ports=198.00 (impact +0.535), syn_flag_ratio=0.89 (impact +0.028), byte_count=202.56 (impact +0.010)\niot_scada_agent detected suspicious behavior. Key contributing factors: command_rate=14.00 (impact +0.315), sensor_delta=6.04 (impact +0.233), replay_gap=0.27 (impact +0.070)\niot_scada_agent detected suspicious behavior. Key contributing factors: sensor_delta=5.58 (impact +0.415), command_rate=14.00 (impact +0.334), replay_gap=0.48 (impact +0.070)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=44.00 (impact +0.073), distinct_endpoints=16.00 (impact +0.039), payload_entropy=7.29 (impact +0.004)\napplication_layer_agent detected suspicious behavior. Key contributing factors: request_rate=40.00 (impact +0.073), distinct_endpoints=11.00 (impact +0.039), payload_entropy=6.07 (impact +0.003)"
+    }
+  ]
+}
