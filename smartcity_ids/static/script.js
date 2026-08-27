@@ -11,10 +11,18 @@ async function runDetection() {
     const resultsContainer = document.getElementById("resultsContainer");
     const detectionStatus = document.getElementById("detectionStatus");
 
+    if (!button || !resultsContainer) {
+        console.error("Required dashboard elements are missing.");
+        return;
+    }
+
     button.disabled = true;
     button.innerHTML = "⏳ AI Detection Running...";
 
-    detectionStatus.textContent = "Analyzing Chandigarh Smart City...";
+    if (detectionStatus) {
+        detectionStatus.textContent =
+            "Analyzing Chandigarh Smart City...";
+    }
 
     resultsContainer.innerHTML = `
         <div class="empty-state">
@@ -72,39 +80,68 @@ async function runDetection() {
         }
 
 
-        // UPDATE STATISTICS
+        // ============================
+        // UPDATE STATISTICS SAFELY
+        // ============================
 
-        document.getElementById("totalAlerts").textContent =
-            data.total_alerts ?? 0;
+        const totalAlertsElement =
+            document.getElementById("totalAlerts");
 
-        document.getElementById("criticalThreats").textContent =
-            data.critical_threats ?? 0;
+        const criticalThreatsElement =
+            document.getElementById("criticalThreats");
 
-        // IMPORTANT: HTML has id="campaigns"
-
-        document.getElementById("campaigns").textContent =
-            data.total_campaigns ?? 0;
-
-
-        // UPDATE STATUS
-
-        detectionStatus.textContent =
-            `✓ Analysis completed for ${data.city}`;
+        const campaignsElement =
+            document.getElementById("campaigns");
 
 
+        if (totalAlertsElement) {
+            totalAlertsElement.textContent =
+                data.total_alerts ?? 0;
+        }
+
+
+        if (criticalThreatsElement) {
+            criticalThreatsElement.textContent =
+                data.critical_threats ?? 0;
+        }
+
+
+        if (campaignsElement) {
+            campaignsElement.textContent =
+                data.total_campaigns ?? 0;
+        }
+
+
+        // ============================
+        // UPDATE STATUS SAFELY
+        // ============================
+
+        if (detectionStatus) {
+            detectionStatus.textContent =
+                `✓ Analysis completed for ${data.city}`;
+        }
+
+
+        // ============================
         // DISPLAY RESULTS
+        // ============================
 
         displayCampaigns(
             data.campaigns || [],
             resultsContainer
         );
 
+
     } catch (error) {
 
         console.error("Detection error:", error);
 
-        detectionStatus.textContent =
-            "Analysis failed";
+
+        if (detectionStatus) {
+            detectionStatus.textContent =
+                "Analysis failed";
+        }
+
 
         resultsContainer.innerHTML = `
             <div class="empty-state">
@@ -123,6 +160,7 @@ async function runDetection() {
 
             </div>
         `;
+
 
     } finally {
 
@@ -185,18 +223,27 @@ function displayCampaigns(campaigns, container) {
                     <div>
 
                         <h3>
-                            🚨 ${escapeHtml(campaign.campaign_id || "Campaign")}
+                            🚨 ${escapeHtml(
+                                campaign.campaign_id || "Campaign"
+                            )}
                         </h3>
 
                         <p>
-                            📍 ${escapeHtml(campaign.city || "Chandigarh Smart City")} |
-                            ${escapeHtml(campaign.location || "Unknown Location")}
+                            📍 ${escapeHtml(
+                                campaign.city || "Chandigarh Smart City"
+                            )} |
+
+                            ${escapeHtml(
+                                campaign.location || "Unknown Location"
+                            )}
                         </p>
 
                     </div>
 
 
-                    <span class="severity-badge ${severity.toLowerCase()}">
+                    <span class="severity-badge ${escapeHtml(
+                        severity.toLowerCase()
+                    )}">
 
                         ${escapeHtml(severity)}
 
@@ -214,7 +261,10 @@ function displayCampaigns(campaigns, container) {
                     </span>
 
                     <h4>
-                        ${escapeHtml(campaign.attack_type || "Suspicious Activity")}
+                        ${escapeHtml(
+                            campaign.attack_type ||
+                            "Suspicious Activity"
+                        )}
                     </h4>
 
                 </div>
@@ -231,8 +281,10 @@ function displayCampaigns(campaigns, container) {
                         </span>
 
                         <strong>
-                            ${escapeHtml(campaign.location || "Unknown Location")},
-                            Chandigarh
+                            ${escapeHtml(
+                                campaign.location ||
+                                "Unknown Location"
+                            )}, Chandigarh
                         </strong>
 
                     </div>
@@ -245,7 +297,10 @@ function displayCampaigns(campaigns, container) {
                         </span>
 
                         <strong>
-                            ${escapeHtml(campaign.target || "Smart City Infrastructure")}
+                            ${escapeHtml(
+                                campaign.target ||
+                                "Smart City Infrastructure"
+                            )}
                         </strong>
 
                     </div>
@@ -258,7 +313,9 @@ function displayCampaigns(campaigns, container) {
                         </span>
 
                         <strong>
-                            ${escapeHtml(campaign.confidence || "N/A")}
+                            ${escapeHtml(
+                                campaign.confidence || "N/A"
+                            )}
                         </strong>
 
                     </div>
