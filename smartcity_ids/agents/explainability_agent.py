@@ -1,25 +1,29 @@
 """
 Lightweight Explainability Agent
 
-Optimized for deployment on low-memory environments such as Render Free.
-Uses model feature importance for global explanations and a lightweight
-perturbation-based method for local explanations.
+Uses dependency-free feature importance and local perturbation
+explanations to keep memory usage low for cloud deployment.
 """
 
 import numpy as np
+
+
+# Disable heavy SHAP and LIME libraries
+_HAS_SHAP = False
+_HAS_LIME = False
 
 
 def backends():
     return {
         "shap_available": False,
         "lime_available": False,
-        "backend": "Lightweight Explainability"
+        "backend": "Lightweight Mini-LIME"
     }
 
 
-# ------------------------------------------------
+# ==================================================
 # GLOBAL FEATURE IMPORTANCE
-# ------------------------------------------------
+# ==================================================
 
 def global_importance(model, X_background, feature_names, top_k=5):
 
@@ -39,27 +43,23 @@ def global_importance(model, X_background, feature_names, top_k=5):
             len(feature_names)
         )
 
-
     order = np.argsort(
         -imp
     )[:top_k]
 
-
     return [
-
         {
             "feature": feature_names[i],
             "contribution": float(imp[i])
         }
 
         for i in order
-
     ]
 
 
-# ------------------------------------------------
+# ==================================================
 # PREDICT POSITIVE PROBABILITY
-# ------------------------------------------------
+# ==================================================
 
 def _predict_proba_pos(model, X):
 
@@ -75,49 +75,31 @@ def _predict_proba_pos(model, X):
     return proba.ravel()
 
 
-# ------------------------------------------------
+# ==================================================
 # LIGHTWEIGHT LOCAL EXPLANATION
-# ------------------------------------------------
+# ==================================================
 
-def local_explanation(
+def _mini_lime(
     model,
     X_background,
     x_row,
     feature_names,
-    top_k=3
+    top_k
 ):
-
-    x_row = np.asarray(
-        x_row,
-        dtype=float
-    )
 
     baseline = _predict_proba_pos(
         model,
         x_row.reshape(1, -1)
     )[0]
 
-
-    # Use a smaller background sample
-    if len(X_background) > 500:
-
-        sample = X_background[:500]
-
-    else:
-
-        sample = X_background
-
-
     medians = np.median(
-        sample,
+        X_background,
         axis=0
     )
-
 
     contributions = np.zeros(
         len(feature_names)
     )
-
 
     for j in range(
         len(feature_names)
@@ -127,32 +109,47 @@ def local_explanation(
 
         perturbed[j] = medians[j]
 
-
         new_pred = _predict_proba_pos(
             model,
             perturbed.reshape(1, -1)
         )[0]
 
-
         contributions[j] = (
             baseline - new_pred
         )
-
 
     order = np.argsort(
         -np.abs(contributions)
     )[:top_k]
 
-
     return [
 
         {
             "feature": feature_names[i],
-            "contribution": float(
-                contributions[i]
-            )
+            "contribution":
+                float(contributions[i])
         }
 
         for i in order
-
     ]
+
+
+# ==================================================
+# LOCAL EXPLANATION
+# ==================================================
+
+def local_explanation(
+    model,
+    X_background,
+    x_row,
+    feature_names,
+    top_k=5
+):
+
+    return _mini_lime(
+        model,
+        X_background,
+        x_row,
+        feature_names,
+        top_k
+    )

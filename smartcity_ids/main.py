@@ -528,7 +528,10 @@ def run_detection_pipeline():
 
     print("\nGenerating Smart City telemetry...")
 
-    net_df, iot_df, app_df = generate_dataset()
+    net_df, iot_df, app_df = generate_dataset(
+    n_normal=1500,
+    n_campaigns=20
+)
 
     # ------------------------------------------------
     # STEP 2: CREATE AGENTS
