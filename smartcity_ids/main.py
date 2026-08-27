@@ -2,20 +2,13 @@
 Explainable Multi-Agent AI Framework for Early Cyberattack Detection
 in Chandigarh Smart City.
 
-This is a synthetic cyberattack detection simulation.
-
-The system:
-1. Generates smart city telemetry.
-2. Trains Network, IoT and Application detection agents.
-3. Detects suspicious activity independently.
-4. Correlates alerts across multiple layers.
-5. Identifies the likely attack type.
-6. Generates a human-readable explanation.
-7. Displays results for a Chandigarh Smart City dashboard.
+Lightweight Render deployment version.
+Optimized to reduce memory usage.
 """
 
 import json
 import time
+import gc
 from pathlib import Path
 
 import numpy as np
@@ -36,6 +29,8 @@ from agents.network_agent import NetworkAgent
 from agents.iot_agent import IoTAgent
 from agents.application_agent import ApplicationAgent
 from agents.coordination_agent import CoordinationAgent, Alert
+
+# Lightweight explainability functions only
 from agents.explainability_agent import (
     global_importance,
     local_explanation,
@@ -65,6 +60,14 @@ app = Flask(
     template_folder=str(TEMPLATE_DIR),
     static_folder=str(STATIC_DIR)
 )
+
+
+# ==================================================
+# RESULT CACHE
+# ==================================================
+
+# Prevents complete AI model training on every button click
+DETECTION_CACHE = None
 
 
 # ==================================================
@@ -112,6 +115,7 @@ def evaluate(model, X_test, y_test, name):
     pred = (proba >= 0.5).astype(int)
 
     metrics = {
+
         "agent": name,
 
         "accuracy": round(
@@ -180,8 +184,8 @@ def classify_attack(campaign):
             "attack_type": "Coordinated Multi-Layer Cyberattack",
             "target": "Multiple Chandigarh Smart City Services",
             "description": (
-                "Suspicious activity was detected simultaneously across "
-                "network, IoT and application infrastructure."
+                "Suspicious activity was detected across network, "
+                "IoT and application infrastructure."
             )
         }
 
@@ -201,7 +205,7 @@ def classify_attack(campaign):
             "target": "Network and Digital Application Services",
             "description": (
                 "High network anomalies and correlated application activity "
-                "indicate a possible coordinated traffic flooding attack."
+                "indicate a possible traffic flooding attack."
             )
         }
 
@@ -211,7 +215,7 @@ def classify_attack(campaign):
             "target": "Smart Devices and Connected Services",
             "description": (
                 "IoT anomalies followed by suspicious application activity "
-                "suggest a possible compromise spreading across connected services."
+                "suggest a possible compromise across connected services."
             )
         }
 
@@ -219,26 +223,20 @@ def classify_attack(campaign):
         return {
             "attack_type": "Network Anomaly / Possible DDoS",
             "target": "Chandigarh Smart City Network",
-            "description": (
-                "Abnormal network behavior was detected by the Network Agent."
-            )
+            "description": "Abnormal network behavior was detected."
         }
 
     if "iot" in layers:
         return {
             "attack_type": "IoT Device Anomaly",
             "target": "Smart City IoT Infrastructure",
-            "description": (
-                "Abnormal behavior was detected among monitored smart devices."
-            )
+            "description": "Abnormal IoT device behavior was detected."
         }
 
     return {
         "attack_type": "Application Layer Attack",
         "target": "Digital and E-Governance Services",
-        "description": (
-            "Suspicious behavior was detected in application-level activity."
-        )
+        "description": "Suspicious application-level behavior was detected."
     }
 
 
@@ -307,19 +305,16 @@ def generate_campaign_explanation(
         2
     )
 
-    explanation = (
+    return (
         f"The system detected a suspected "
         f"'{attack_info['attack_type']}' affecting "
         f"{location['name']} in Chandigarh. "
-        f"{total_alerts} suspicious events were correlated by the "
+        f"{total_alerts} suspicious events were correlated by "
         f"{agents_text}. "
         f"The alerts occurred within approximately "
-        f"{time_window} seconds, which increased the likelihood that "
-        f"they belong to the same coordinated attack campaign. "
+        f"{time_window} seconds. "
         f"{attack_info['description']}"
     )
-
-    return explanation
 
 
 # ==================================================
@@ -341,54 +336,17 @@ def generate_ai_assessment(
 
     return (
         f"AI Assessment: The system has {confidence}% confidence that "
-        f"the correlated anomalies represent a {attack_info['attack_type']}. "
+        f"the correlated anomalies represent a "
+        f"{attack_info['attack_type']}. "
         f"The affected simulated location is {location['name']}, "
         f"and the primary target is {attack_info['target']}. "
-        f"Detection was based on correlated evidence from: {layers_text}."
+        f"Detection was based on correlated evidence from: "
+        f"{layers_text}."
     )
 
 
 # ==================================================
-# FIND ACTUAL FEATURE NAME
-# FIX FOR LIME FEATURE EXPRESSIONS
-# ==================================================
-
-def resolve_feature_name(
-    explanation_feature,
-    available_features
-):
-
-    explanation_feature = str(explanation_feature)
-
-    # Exact feature match
-    if explanation_feature in available_features:
-        return explanation_feature
-
-    # LIME can return:
-    # "unique_dst_ports <= 5.00"
-    # "payload_entropy > 4.20"
-    # So find the original feature inside it.
-    for feature in available_features:
-        if feature in explanation_feature:
-            return feature
-
-    return None
-
-
-# ==================================================
-# SAFE FEATURE VALUE FORMATTER
-# ==================================================
-
-def format_feature_value(value):
-
-    try:
-        return f"{float(value):.2f}"
-    except (ValueError, TypeError):
-        return str(value)
-
-
-# ==================================================
-# BUILD TECHNICAL EXPLANATION
+# TECHNICAL EXPLANATION
 # ==================================================
 
 def build_campaign_narrative(
@@ -424,64 +382,42 @@ def build_campaign_narrative(
             for feature in agent.features
         ])
 
-        explanation = local_explanation(
-            agent.model,
-            agent.X_train,
-            x_row,
-            agent.features,
-            top_k=top_k
-        )
+        try:
 
-        important_features = []
-
-        for item in explanation:
-
-            explanation_feature = item.get(
-                "feature",
-                "Unknown Feature"
+            explanation = local_explanation(
+                agent.model,
+                agent.X_train,
+                x_row,
+                agent.features,
+                top_k=top_k
             )
 
-            contribution = item.get(
-                "contribution",
-                0
-            )
+            important_features = []
 
-            # FIX:
-            # Convert LIME expression back to actual feature name
-            actual_feature = resolve_feature_name(
-                explanation_feature,
-                agent.features
-            )
+            for item in explanation:
 
-            if actual_feature is None:
-                important_features.append(
-                    f"{explanation_feature} "
-                    f"(impact {float(contribution):+.3f})"
+                feature_name = item["feature"]
+                contribution = item["contribution"]
+
+                feature_value = alert.row.get(
+                    feature_name,
+                    0
                 )
-                continue
 
-            feature_value = alert.row.get(
-                actual_feature,
-                "N/A"
+                important_features.append(
+                    f"{feature_name}={feature_value:.2f} "
+                    f"(impact {contribution:+.3f})"
+                )
+
+            features_text = ", ".join(
+                important_features
             )
 
-            formatted_value = format_feature_value(
-                feature_value
-            )
+        except Exception as error:
 
-            important_features.append(
-                f"{actual_feature}={formatted_value} "
-                f"(impact {float(contribution):+.3f})"
-            )
-
-        features_text = ", ".join(
-            important_features
-        )
-
-        if not features_text:
             features_text = (
-                "Multiple anomalous telemetry values "
-                "contributed to the detection."
+                "Automated feature-level explanation "
+                "was temporarily unavailable."
             )
 
         lines.append(
@@ -516,26 +452,40 @@ def classify_severity(fused_score):
 
 def run_detection_pipeline():
 
-    print("\n" + "=" * 78)
+    global DETECTION_CACHE
+
+    # ---------------------------------------------
+    # RETURN CACHED RESULT
+    # ---------------------------------------------
+
+    if DETECTION_CACHE is not None:
+
+        print("Using cached detection results.")
+
+        return DETECTION_CACHE
+
+    print("\n" + "=" * 70)
     print("CHANDIGARH SMART CITY CYBER THREAT DETECTION")
-    print("Synthetic Cyberattack Simulation")
-    print(f"Explainability backends: {backends()}")
-    print("=" * 78)
+    print("=" * 70)
 
-    # ------------------------------------------------
-    # STEP 1: GENERATE DATA
-    # ------------------------------------------------
+    print(
+        f"Explainability backends: {backends()}"
+    )
 
-    print("\nGenerating Smart City telemetry...")
+    # ---------------------------------------------
+    # STEP 1: GENERATE SMALLER DATASET
+    # ---------------------------------------------
+
+    print("Generating lightweight Smart City telemetry...")
 
     net_df, iot_df, app_df = generate_dataset(
-    n_normal=1500,
-    n_campaigns=20
-)
+        n_normal=800,
+        n_campaigns=15
+    )
 
-    # ------------------------------------------------
+    # ---------------------------------------------
     # STEP 2: CREATE AGENTS
-    # ------------------------------------------------
+    # ---------------------------------------------
 
     agents = {
         "network": NetworkAgent(),
@@ -555,13 +505,13 @@ def run_detection_pipeline():
         "application": "application"
     }
 
-    # ------------------------------------------------
+    # ---------------------------------------------
     # STEP 3: TRAIN AGENTS
-    # ------------------------------------------------
+    # ---------------------------------------------
 
     metrics = []
 
-    print("\nTraining specialized AI detection agents...")
+    print("Training AI detection agents...")
 
     for key, agent in agents.items():
 
@@ -578,19 +528,9 @@ def run_detection_pipeline():
 
         metrics.append(agent_metrics)
 
-    print("\n--- Per-Agent Evaluation ---")
-
-    print(
-        pd.DataFrame(metrics).to_string(
-            index=False
-        )
-    )
-
-    # ------------------------------------------------
-    # STEP 4: GLOBAL FEATURE IMPORTANCE
-    # ------------------------------------------------
-
-    print("\n--- Global Feature Importance ---")
+    # ---------------------------------------------
+    # STEP 4: GLOBAL IMPORTANCE
+    # ---------------------------------------------
 
     global_importance_results = {}
 
@@ -607,23 +547,11 @@ def run_detection_pipeline():
             agent.name
         ] = importance
 
-        ranked = ", ".join(
-            f"{item['feature']} "
-            f"({item['contribution']:.3f})"
-            for item in importance
-        )
+    # ---------------------------------------------
+    # STEP 5: GENERATE ALERTS
+    # ---------------------------------------------
 
-        print(
-            f"{agent.name}: {ranked}"
-        )
-
-    # ------------------------------------------------
-    # STEP 5: GENERATE LOCAL ALERTS
-    # ------------------------------------------------
-
-    print(
-        "\nMonitoring simulated Chandigarh Smart City infrastructure..."
-    )
+    print("Monitoring simulated infrastructure...")
 
     all_alerts = []
 
@@ -641,24 +569,19 @@ def run_detection_pipeline():
                     Alert(
                         agent=agent.name,
                         layer=layer_of[key],
-                        timestamp=float(
-                            row["timestamp"]
-                        ),
-                        score=float(result.score),
+                        timestamp=float(row["timestamp"]),
+                        score=result.score,
                         row=result.row
                     )
                 )
 
     print(
-        f"Total Local Alerts Detected: "
-        f"{len(all_alerts)}"
+        f"Total Local Alerts: {len(all_alerts)}"
     )
 
-    # ------------------------------------------------
-    # STEP 6: COORDINATION AGENT
-    # ------------------------------------------------
-
-    print("\nCorrelating alerts across layers...")
+    # ---------------------------------------------
+    # STEP 6: COORDINATION
+    # ---------------------------------------------
 
     coordinator = CoordinationAgent(
         window_seconds=12.0,
@@ -670,13 +593,12 @@ def run_detection_pipeline():
     )
 
     print(
-        f"Coordinated Attack Campaigns Identified: "
-        f"{len(campaigns)}"
+        f"Campaigns Identified: {len(campaigns)}"
     )
 
-    # ------------------------------------------------
-    # STEP 7: BUILD EXPLAINABLE REPORT
-    # ------------------------------------------------
+    # ---------------------------------------------
+    # STEP 7: REPORT
+    # ---------------------------------------------
 
     agents_by_name = {
         agent.name: agent
@@ -691,11 +613,11 @@ def run_detection_pipeline():
     )
 
     for index, campaign in enumerate(
-        sorted_campaigns[:10]
+        sorted_campaigns[:5]
     ):
 
         fused_score = round(
-            float(campaign.campaign_score),
+            campaign.campaign_score,
             3
         )
 
@@ -762,30 +684,10 @@ def run_detection_pipeline():
                 severity,
 
             "layers_involved":
-                list(campaign.layers_involved),
+                campaign.layers_involved,
 
             "n_alerts":
-                int(len(campaign.member_alerts)),
-
-            "start_ts":
-                round(
-                    float(min(
-                        alert.timestamp
-                        for alert
-                        in campaign.member_alerts
-                    )),
-                    2
-                ),
-
-            "end_ts":
-                round(
-                    float(max(
-                        alert.timestamp
-                        for alert
-                        in campaign.member_alerts
-                    )),
-                    2
-                ),
+                len(campaign.member_alerts),
 
             "why_detected":
                 human_explanation,
@@ -797,23 +699,14 @@ def run_detection_pipeline():
                 technical_narrative
         })
 
-    # ------------------------------------------------
-    # STEP 8: SAVE RESULTS
-    # ------------------------------------------------
-
-    all_campaigns_df = (
-        coordinator.to_dataframe(campaigns)
-    )
-
-    all_campaigns_df.to_csv(
-        OUT_DIR / "campaigns_summary.csv",
-        index=False
-    )
+    # ---------------------------------------------
+    # STEP 8: RESULTS
+    # ---------------------------------------------
 
     results = {
 
         "generated_at":
-            float(time.time()),
+            time.time(),
 
         "city":
             CITY_NAME,
@@ -831,30 +724,54 @@ def run_detection_pipeline():
             global_importance_results,
 
         "n_total_local_alerts":
-            int(len(all_alerts)),
+            len(all_alerts),
 
         "n_campaigns":
-            int(len(campaigns)),
+            len(campaigns),
 
         "top_campaigns":
-            report[:5]
+            report
     }
 
-    with open(
-        OUT_DIR / "alerts.json",
-        "w"
-    ) as file:
+    # ---------------------------------------------
+    # SAVE RESULTS
+    # ---------------------------------------------
 
-        json.dump(
-            results,
-            file,
-            indent=2
+    try:
+
+        with open(
+            OUT_DIR / "alerts.json",
+            "w"
+        ) as file:
+
+            json.dump(
+                results,
+                file,
+                indent=2
+            )
+
+    except Exception as error:
+
+        print(
+            f"Could not save results: {error}"
         )
 
-    print(
-        f"\nResults saved to: "
-        f"{OUT_DIR / 'alerts.json'}"
-    )
+    # ---------------------------------------------
+    # FREE UNNECESSARY MEMORY
+    # ---------------------------------------------
+
+    del net_df
+    del iot_df
+    del app_df
+    del datasets
+    del all_alerts
+
+    gc.collect()
+
+    # Cache final lightweight result
+    DETECTION_CACHE = results
+
+    print("Detection completed successfully.")
 
     return results
 
@@ -935,8 +852,13 @@ def run_detection():
 
     except Exception as error:
 
-        print("\nDETECTION ERROR:")
+        print(
+            "\nDETECTION ERROR:"
+        )
+
         print(str(error))
+
+        gc.collect()
 
         return jsonify({
             "success": False,
@@ -950,13 +872,13 @@ def run_detection():
 
 if __name__ == "__main__":
 
-    print("\nStarting Chandigarh Smart City IDS Dashboard...")
+    print(
+        "\nStarting Chandigarh Smart City IDS Dashboard..."
+    )
 
-    print(f"Project directory: {BASE_DIR}")
-
-    print(f"Template directory: {TEMPLATE_DIR}")
-
-    print(f"Static directory: {STATIC_DIR}")
+    print(
+        f"Project directory: {BASE_DIR}"
+    )
 
     app.run(
         debug=False,
