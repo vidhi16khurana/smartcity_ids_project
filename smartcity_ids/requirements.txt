@@ -1,10 +1,5 @@
+Flask
+gunicorn
 numpy
 pandas
 scikit-learn
-flask
-
-# Optional -- enables real SHAP/LIME explanations instead of the built-in
-# fallback attribution methods in agents/explainability_agent.py.
-# Uncomment if you have internet access when installing:
-# shap
-# lime
